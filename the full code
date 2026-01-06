@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoVault | Security Simulator</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --panel: #0d1117;
+            --glow: #00ff41; /* Classic Matrix Green */
+            --danger: #ff3e3e;
+            --border: #30363d;
+            --text: #c9d1d9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        header h1 {
+            color: var(--glow);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        h3 {
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: var(--glow);
+            border-left: 3px solid var(--glow);
+            padding-left: 10px;
+        }
+
+        textarea, input {
+            width: 100%;
+            background: #000;
+            border: 1px solid var(--border);
+            color: var(--glow);
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 10px;
+            cursor: pointer;
+            border: 1px solid var(--glow);
+            background: transparent;
+            color: var(--glow);
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: var(--glow);
+            color: #000;
+        }
+
+        /* Password Strength Meter */
+        .strength-meter {
+            height: 4px;
+            background: #222;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        #strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.5s;
+        }
+
+        .output-area {
+            background: #000;
+            padding: 10px;
+            border: 1px dashed var(--border);
+            min-height: 50px;
+            word-break: break-all;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .label { font-size: 0.7rem; color: #888; margin-bottom: 5px; display: block; }
+
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CRYPTO_VAULT v1.0</h1>
+            <p>Cryptographic Analysis & Data Protection Tool</p>
+        </header>
+
+        <div class="grid">
+            <!-- Encryption Section -->
+            <div class="card">
+                <h3>Message Encoder/Decoder</h3>
+                <span class="label">Plaintext Message:</span>
+                <textarea id="crypto-input" rows="4" placeholder="Enter sensitive data..."></textarea>
+                
+                <span class="label">Secret Key:</span>
+                <input type="text" id="cipher-key" placeholder="Encryption Key">
+
+                <div class="btn-group">
+                    <button onclick="processCrypto('encrypt')">ENCRYPT</button>
+                    <button onclick="processCrypto('decrypt')">DECRYPT</button>
+                </div>
+                <div class="label" style="margin-top: 15px;">Result:</div>
+                <div id="crypto-output" class="output-area">No data processed.</div>
+            </div>
+
+            <!-- Security Section -->
+            <div class="card">
+                <h3>Password Entropy Analysis</h3>
+                <span class="label">Test Password:</span>
+                <input type="text" id="pass-input" placeholder="Type password..." oninput="analyzePassword()">
+                
+                <div class="strength-meter">
+                    <div id="strength-bar"></div>
+                </div>
+                
+                <div id="pass-feedback" style="font-size: 0.7rem; margin-bottom: 15px;">
+                    Strength: <span id="strength-text">N/A</span>
+                </div>
+
+                <h3>Secure Key Generator</h3>
+                <span class="label">Key Length:</span>
+                <input type="range" id="gen-length" min="8" max="64" value="16" oninput="document.getElementById('len-ui').innerText = this.value">
+                <span class="label">Length: <span id="len-ui" style="color: var(--glow);">16</span> characters</span>
+                
+                <button onclick="generateKey()" style="width: 100%;">GENERATE HEX KEY</button>
+                <div class="label" style="margin-top: 15px;">Generated Key:</div>
+                <div id="gen-output" class="output-area">Pending...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * XOR Cipher Implementation
+         * Demonstrates bitwise logic: Applying the same XOR key twice restores original data.
+         */
+        function xorCipher(text, key) {
+            if (!key) return "Error: Key Required";
+            let result = "";
+            for (let i = 0; i < text.length; i++) {
+                // Bitwise XOR between character code and key character code
+                result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+            }
+            return result;
+        }
+
+        function processCrypto(mode) {
+            const input = document.getElementById('crypto-input').value;
+            const key = document.getElementById('cipher-key').value;
+            const outputDiv = document.getElementById('crypto-output');
+
+            if (!input) {
+                outputDiv.innerText = "Error: Input required";
+                return;
+            }
+
+            if (mode === 'encrypt') {
+                try {
+                    // Convert XOR result to Base64 for safe text display/storage
+                    const encrypted = btoa(xorCipher(input, key));
+                    outputDiv.innerText = encrypted;
+                    outputDiv.style.color = "var(--glow)";
+                } catch (e) {
+                    outputDiv.innerText = "Error during encryption";
+                }
+            } else {
+                try {
+                    // Decode Base64 then apply XOR to reverse
+                    const decrypted = xorCipher(atob(input), key);
+                    outputDiv.innerText = decrypted;
+                    outputDiv.style.color = "#fff";
+                } catch(e) {
+                    outputDiv.innerText = "Error: Invalid format or key";
+                }
+            }
+        }
+
+        /**
+         * Password Entropy Analysis
+         * Uses regular expressions to evaluate string complexity (heuristic approach).
+         */
+        function analyzePassword() {
+            const pass = document.getElementById('pass-input').value;
+            const bar = document.getElementById('strength-bar');
+            const text = document.getElementById('strength-text');
+            
+            let score = 0;
+            if (pass.length >= 8) score++;
+            if (/[A-Z]/.test(pass)) score++;
+            if (/[0-9]/.test(pass)) score++;
+            if (/[^A-Za-z0-9]/.test(pass)) score++;
+            if (pass.length >= 16) score++;
+
+            const colors = ['#ff3e3e', '#ff9f3e', '#ffff3e', '#3eff3e', '#00ff41'];
+            const labels = ['WEAK', 'FAIR', 'GOOD', 'STRONG', 'SECURE'];
+
+            if (pass === "") {
+                bar.style.width = "0%";
+                text.innerText = "N/A";
+            } else {
+                const level = Math.min(score, 4);
+                bar.style.width = ((level + 1) * 20) + "%";
+                bar.style.background = colors[level];
+                text.innerText = labels[level];
+                text.style.color = colors[level];
+            }
+        }
+
+        /**
+         * Cryptographically Secure Key Generation
+         * Uses CSPRNG (getRandomValues) rather than Math.random() for security.
+         */
+        function generateKey() {
+            const len = document.getElementById('gen-length').value;
+            const charset = "ABCDEF0123456789";
+            let result = "";
+            const randomValues = new Uint32Array(len);
+            
+            // Standard Math.random() is predictable; getRandomValues is secure.
+            window.crypto.getRandomValues(randomValues);
+
+            for (let i = 0; i < len; i++) {
+                result += charset[randomValues[i] % charset.length];
+            }
+            document.getElementById('gen-output').innerText = result;
+        }
+    </script>
+</body>
+</html>
