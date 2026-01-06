@@ -1,0 +1,122 @@
+:root {
+    --bg: #050505;
+    --panel: #0d1117;
+    --glow: #00ff41; /* Classic Matrix Green */
+    --danger: #ff3e3e;
+    --border: #30363d;
+    --text: #c9d1d9;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Courier New', Courier, monospace;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 850px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+}
+
+header h1 {
+    color: var(--glow);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 20px;
+    border-radius: 4px;
+}
+
+h3 {
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    color: var(--glow);
+    border-left: 3px solid var(--glow);
+    padding-left: 10px;
+}
+
+textarea, input {
+    width: 100%;
+    background: #000;
+    border: 1px solid var(--border);
+    color: var(--glow);
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 2px;
+    outline: none;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    flex: 1;
+    padding: 10px;
+    cursor: pointer;
+    border: 1px solid var(--glow);
+    background: transparent;
+    color: var(--glow);
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+button:hover {
+    background: var(--glow);
+    color: #000;
+}
+
+/* Password Strength Meter */
+.strength-meter {
+    height: 4px;
+    background: #222;
+    margin-top: -10px;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+#strength-bar {
+    height: 100%;
+    width: 0%;
+    transition: all 0.5s;
+}
+
+.output-area {
+    background: #000;
+    padding: 10px;
+    border: 1px dashed var(--border);
+    min-height: 50px;
+    word-break: break-all;
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.label { font-size: 0.7rem; color: #888; margin-bottom: 5px; display: block; }
+
+@media (max-width: 600px) {
+    .grid { grid-template-columns: 1fr; }
+}
