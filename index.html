@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoVault | Security Simulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CRYPTO_VAULT v1.0</h1>
+            <p>Cryptographic Analysis & Data Protection Tool</p>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <h3>Message Encoder/Decoder</h3>
+                <span class="label">Plaintext Message:</span>
+                <textarea id="crypto-input" rows="4" placeholder="Enter sensitive data..."></textarea>
+                
+                <span class="label">Secret Key:</span>
+                <input type="text" id="cipher-key" placeholder="Encryption Key">
+
+                <div class="btn-group">
+                    <button onclick="processCrypto('encrypt')">ENCRYPT</button>
+                    <button onclick="processCrypto('decrypt')">DECRYPT</button>
+                </div>
+                <div class="label" style="margin-top: 15px;">Result:</div>
+                <div id="crypto-output" class="output-area">No data processed.</div>
+            </div>
+
+            <div class="card">
+                <h3>Password Entropy Analysis</h3>
+                <span class="label">Test Password:</span>
+                <input type="text" id="pass-input" placeholder="Type password..." oninput="analyzePassword()">
+                
+                <div class="strength-meter">
+                    <div id="strength-bar"></div>
+                </div>
+                
+                <div id="pass-feedback" style="font-size: 0.7rem; margin-bottom: 15px;">
+                    Strength: <span id="strength-text">N/A</span>
+                </div>
+
+                <h3>Secure Key Generator</h3>
+                <span class="label">Key Length:</span>
+                <input type="range" id="gen-length" min="8" max="64" value="16" oninput="document.getElementById('len-ui').innerText = this.value">
+                <span class="label">Length: <span id="len-ui" style="color: var(--glow);">16</span> characters</span>
+                
+                <button onclick="generateKey()" style="width: 100%;">GENERATE HEX KEY</button>
+                <div class="label" style="margin-top: 15px;">Generated Key:</div>
+                <div id="gen-output" class="output-area">Pending...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
